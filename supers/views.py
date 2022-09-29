@@ -13,12 +13,20 @@ def supers_list(request):
 
         super_type_param = request.query_params.get('type')
         supers = Super.objects.all()
-        
+
         if super_type_param:
             supers = supers.filter(super_type__type=super_type_param)
+        else:
+            custom_dictionary = {}
 
-        serializer = SuperSerializer(supers, many=True)
-        return Response(serializer.data, status=status.HTTP_200_OK)
+            heroes = supers.filter(super_type_id=1)
+            villains = supers.filter(super_type__id=2)
+            custom_dictionary = {
+                'heroes' : heroes,
+                'villains' : villains
+            }
+            serializer = SuperSerializer(custom_dictionary, many=True)
+            return Response(serializer, status=status.HTTP_200_OK)
 
     elif request.method == 'POST':
         serializer =  SuperSerializer(data=request.data)
