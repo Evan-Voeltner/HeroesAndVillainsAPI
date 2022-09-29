@@ -16,17 +16,24 @@ def supers_list(request):
 
         if super_type_param:
             supers = supers.filter(super_type__type=super_type_param)
+            serializer = SuperSerializer(supers, many=True)
+            return Response(serializer.data, status=status.HTTP_200_OK)
         else:
-            custom_dictionary = {}
-
+            custom_dictionary = {
+                'heroes' : [],
+                'villains' : []
+            }
+            
             heroes = supers.filter(super_type_id=1)
             villains = supers.filter(super_type__id=2)
-            custom_dictionary = {
-                'heroes' : heroes,
-                'villains' : villains
-            }
-            serializer = SuperSerializer(custom_dictionary, many=True)
-            return Response(serializer, status=status.HTTP_200_OK)
+            
+            hero_serializer = SuperSerializer(heroes, many=True)
+            villain_serializer = SuperSerializer(villains, many=True)
+
+            custom_dictionary['heroes'] = hero_serializer.data
+            custom_dictionary['villains'] = villain_serializer.data
+
+            return Response(custom_dictionary, status=status.HTTP_200_OK)
 
     elif request.method == 'POST':
         serializer =  SuperSerializer(data=request.data)
